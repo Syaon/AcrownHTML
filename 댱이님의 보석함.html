@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>댱이님의 보석함</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            color: #555;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        p {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        .highlight {
+            font-size: 1.5em;
+            font-weight: bold;
+            border: 2px solid #ff6347;
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+            background-color: #fff;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 1.5em;
+            cursor: pointer;
+            background-color: #ff6347;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 3px 3px #ffa07a;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        button:hover {
+            background-color: #ff4500;
+            transform: scale(1.05);
+        }
+        #result {
+            font-size: 1.5em;
+            margin-top: 20px;
+            color: #000;
+        }
+        h2 {
+            font-size: 2em;
+            margin-top: 30px;
+            color: #ff4500;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+            font-size: 1.1em;
+            color: #333;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+        }
+        .gain-result {
+            background-color: #ffffe0; /* 연한 노란색 배경 */
+        }
+    </style>
+</head>
+<body>
+    <h1>댱이님의 보석함</h1>
+    <p>현재 다이아: <span id="diamond-count" class="highlight">💎 3000</span></p>
+    <p>뽑기 진행한 횟수: <span id="draw-count">0</span></p>
+    <button id="action-button" onclick="showResult()">결과 보기</button>
+    <p id="result"></p>
+    <h2>뽑기 히스토리</h2>
+    <ul id="draw-history"></ul>
+
+    <a href="index.html" style="position: absolute; top: 10px; left: 10px; text-decoration: none; color: #3c8dbc;">← 돌아가기</a>
+
+    <script>
+        let diamonds = 3000;
+        let numDraws = 0;  // Draw count
+        const history = [];  // History array
+
+        const results = {
+            "gain": [
+                "★축★UR 아자님이 나왔습니다!(+500💎)",
+                "★축★UR 댱이님이 나왔습니다!(+500💎)",
+                "★축★UR 웰님이 나왔습니다!(+500💎)",
+                "★축★UR 김진님이 나왔습니다!(+500💎)",
+                "★축★UR 금옥님이 나왔습니다!(+500💎)",
+                "★축★UR 안도님이 나왔습니다!(+500💎)",
+                "★축★UR 리호님이 나왔습니다!(+500💎)",
+                "★축★UR 튜나님이 나왔습니다!(+500💎)",
+                "★축★UR 에반님이 나왔습니다!(+500💎)",
+                "★축★UR 기주님이 나왔습니다!(+500💎)",
+                "★축★UR 넬리님이 나왔습니다!(+500💎)",
+                "★축★UR 소야님이 나왔습니다!(+500💎)",
+                "★축★UR 다다님이 나왔습니다!(+500💎)",
+                "★축★UR 마호님이 나왔습니다!(+500💎)",
+                "★감★섹시큐티 UR 솔맹님이 나왔습니다!★자★(+500💎) 🥔",
+                "★소★당신은 소품이 되었습니다.★품★(+100💎) 🎭",
+                "★노★당신은 스탭이 되었습니다.★예★(+300💎) 🎬"
+            ],
+            "lose": [
+                "아자님에 의해 없어짐(모든 💎 차감) 💥",
+                "아자님에 의해 사라짐(모든 💎 차감) 💨",
+                "아자님에 의해 도망감(모든 💎 차감) 🚶‍♂️",
+                "아자님에 의해 도난당함(모든 💎 차감) 🏃‍♂️",
+                "아자님에 의해 도둑당함(모든 💎 차감) 🏃",
+                "아자님에 의해 지워짐(모든 💎 차감) ✨",
+                "아자님에 의해 훔쳐짐(모든 💎 차감) 🏴‍☠️",
+                "아자님에 의해 터짐(모든 💎 차감) 💣",
+                "아자님에 의해 폭발함(모든 💎 차감) 💥",
+                "아자님에 의해 부서짐(모든 💎 차감) 🔨",
+                "아자님에 의해 쪼개짐(모든 💎 차감) 🪓",
+                "아자님에 의해 파손됨(모든 💎 차감) 🛠️",
+                "아자님에 의해 파괴됨(모든 💎 차감) ⚒️",
+                "아자님에 의해 팔림(모든 💎 차감) 💸",
+                "아자님에 의해 분실됨(모든 💎 차감) 🔍",
+                "★저★UR 미노(존윅)님이 당신을 암살하였습니다 빵!★런★(모든 💎 차감) 🔫"
+            ],
+            "extraLose": [
+                "★뛰★UR SUN님과 마라톤에 당첨되었습니다!★어★(-500💎) 🏃‍♀️"
+            ],
+            "neutral": [
+                "★코★당신은 1:1 면담에 당첨 되었습니다.★유★ 🤝",
+                "★법★UR 아자님이 포상을 수여합니다.★규★ 🎖️",
+                "★저★꽝!★런★ 😅"
+            ]
+        };
+
+        function showResult() {
+            if (diamonds <= 0) {
+                document.getElementById('result').innerText = "게임 오버!";
+                document.getElementById('action-button').innerText = "다시하기";
+                document.getElementById('action-button').onclick = resetGame;
+                return;
+            }
+
+            diamonds -= 300; // 기본 차감
+            numDraws++;  // Increment draw count
+            const random = Math.random() * 100;
+            let selectedResult;
+            let resultType;
+            if (random < 10) {
+                selectedResult = getRandomResult(results.gain);
+                diamonds += parseInt(selectedResult.match(/\+(\d+)💎/)[1]);
+                resultType = "gain";
+            } else if (random < 50) {
+                selectedResult = getRandomResult(results.extraLose);
+                diamonds -= 500;
+                resultType = "extraLose";
+            } else if (random < 90) {
+                selectedResult = getRandomResult(results.neutral);
+                resultType = "neutral";
+            } else {
+                selectedResult = getRandomResult(results.lose);
+                diamonds = 0;
+                resultType = "lose";
+            }
+
+            // Update the page with results
+            document.getElementById('diamond-count').innerText = `💎 ${diamonds}`;
+            document.getElementById('result').innerText = selectedResult;
+            document.getElementById('draw-count').innerText = numDraws;  // Update draw count
+            addToHistory(selectedResult, resultType);  // Add result to history with type
+        }
+
+        function addToHistory(result, type) {
+            history.push(result);
+            const historyList = document.getElementById('draw-history');
+            const newResultItem = document.createElement('li');
+            newResultItem.innerText = result;
+            if (type === "gain") {
+                newResultItem.classList.add('gain-result');  // Add class for gain results
+            }
+            historyList.appendChild(newResultItem);
+        }
+
+        function getRandomResult(resultArray) {
+            return resultArray[Math.floor(Math.random() * resultArray.length)];
+        }
+
+        function resetGame() {
+            diamonds = 3000;
+            numDraws = 0;  // Reset draw count
+            document.getElementById('diamond-count').innerText = `💎 ${diamonds}`;
+            document.getElementById('draw-count').innerText = numDraws;  // Reset draw count
+            document.getElementById('result').innerText = "";
+            document.getElementById('draw-history').innerHTML = '';  // Clear draw history
+            document.getElementById('action-button').innerText = "결과 보기";
+            document.getElementById('action-button').onclick = showResult;
+        }
+    </script>
+</body>
+</html>
