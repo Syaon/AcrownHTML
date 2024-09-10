@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>솔맹님을 분해했더니</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center; /* 가운데 정렬 */
+            background-color: #f9f9f9;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px; /* 최대 너비 설정 */
+            margin-left: auto;
+            margin-right: auto; /* 가운데 정렬을 위한 설정 */
+        }
+        h1 {
+            color: #333;
+        }
+        .result-item {
+            font-size: 18px; /* 결과 아이템 글자 크기 */
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>솔맹님을 분해했더니</h1>
+<button id="checkResult">결과 확인</button>
+<div id="result"></div>
+
+<a href="index.html" style="position: absolute; top: 10px; left: 10px; text-decoration: none; color: #fff; background-color: #3c8dbc; padding: 10px 15px; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2);">← 돌아가기</a>
+
+<script>
+    const options = [
+        "정시출근", "조기출근", "지각", "의상제작", "소품제작",
+        "화보촬영", "연차", "조기퇴근", "정시퇴근", "야근",
+        "회식", "행사", "수은", "진쪽이", "사리",
+        "감자", "보정", "천쪼가리", "돈", "떽쒸",
+        "귀여움", "이쁨", "포토존", "주말", "밥",
+        "꼬리", "삐끼삐끼", "냉수", "가발", "양심",
+        "소주", "맥주"
+    ];
+
+    const group1 = ["정시퇴근", "조기출근", "지각", "연차"];
+    const group2 = ["조기퇴근", "정시퇴근", "연차", "회식"];
+    
+    function getRandomValue(option) {
+        switch (option) {
+            case "조기출근":
+            case "지각":
+                return `${Math.floor(Math.random() * 60) + 1}분`;
+            case "의상제작":
+            case "소품제작":
+                return `${Math.floor(Math.random() * 10) + 1}벌/개`;
+            case "화보촬영":
+                return `${Math.floor(Math.random() * 5) + 1}일 연속 밤샘촬영`;
+            case "조기퇴근":
+            case "정시퇴근":
+                return `${Math.floor(Math.random() * 61)}분`;
+            case "야근":
+                return `${Math.floor(Math.random() * 720) + 1}분`;
+            case "회식":
+                return `${Math.floor(Math.random() * 6) + 1}시간`;
+            case "행사":
+                return `${Math.floor(Math.random() * 24) + 1}시간`;
+            case "수은":
+                return `${Math.floor(Math.random() * 1000) + 1}mg`;
+            case "사리":
+                return `${Math.floor(Math.random() * 100) + 1}개`;
+            case "감자":
+                return `${Math.floor(Math.random() * 60) + 1}kg`;
+            case "보정":
+                return `${Math.floor(Math.random() * 200) + 1}장`;
+            case "천쪼가리":
+                return `${Math.floor(Math.random() * 30) + 1}개`;
+            case "돈":
+                return `${Math.floor(Math.random() * 991) + 10}원`;
+            case "떽쒸":
+                return `${Math.floor(Math.random() * 2) + 1}g`;
+            case "귀여움":
+                return `${Math.floor(Math.random() * 50) + 1}kg`;
+            case "이쁨":
+                return `${Math.floor(Math.random() * 10) + 1}g`;
+            case "포토존":
+                return `${Math.floor(Math.random() * 24) + 1}시간`;
+            case "주말":
+                return `${Math.floor(Math.random() * 121)}분`;
+            case "밥":
+                return `${Math.floor(Math.random() * 951) + 50}g`;
+            case "꼬리":
+                return `${Math.floor(Math.random() * 600) + 1}g`;
+            case "냉수":
+                return `${Math.floor(Math.random() * 20) + 1}사발`;
+            case "가발":
+                return `${Math.floor(Math.random() * 50) + 1}양양`;
+            case "양심":
+                return `${Math.floor(Math.random() * 51)}애옹`;
+            case "소주":
+                return `${Math.floor(Math.random() * 20) + 1}병`;
+            case "맥주":
+                return `${Math.floor(Math.random() * 10000) + 1}cc`;
+            default:
+                return '';
+        }
+    }
+
+    document.getElementById('checkResult').onclick = function () {
+        let results = new Set();
+        let eventOccurred = false;
+
+        while (results.size < 10) {
+            const randomIndex = Math.floor(Math.random() * options.length);
+            const selectedOption = options[randomIndex];
+
+            if (selectedOption === "행사") {
+                eventOccurred = true;
+            }
+
+            // 그룹 조건 체크
+            if (eventOccurred) {
+                if (group1.includes(selectedOption) || group2.includes(selectedOption)) {
+                    continue;
+                }
+            }
+
+            // 중복 추가 방지
+            if (!results.has(selectedOption)) {
+                results.add(selectedOption);
+                // 그룹에 포함된 값이 추가된 경우 해당 그룹의 다른 값은 제외
+                if (group1.includes(selectedOption) || group2.includes(selectedOption)) {
+                    group1.forEach(item => results.delete(item));
+                    group2.forEach(item => results.delete(item));
+                }
+            }
+            if (results.size >= 10 || (eventOccurred && results.size > 0)) {
+                break;
+            }
+        }
+
+        const output = Array.from(results).map(item => 
+            `<div class="result-item">${item}${getRandomValue(item) ? ` (${getRandomValue(item)})` : ''}</div>`
+        ).join('');
+
+        document.getElementById('result').innerHTML = output;
+    };
+</script>
+
+</body>
+</html>

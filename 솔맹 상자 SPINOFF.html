@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>솔맹 상자 Spinoff</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* 버튼 간격 조정 */
+            margin-top: 20px; /* 버튼 위쪽 간격 조정 */
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+        #gameOver {
+            color: red;
+            font-size: 28px;
+            margin-top: 20px;
+        }
+        #count {
+            font-size: 20px;
+        }
+        #overtimeDisplay {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>솔맹 상자 Spinoff</h1>
+    <div id="buttons">
+        <button id="checkResultButton">결과 확인</button>
+        <button id="resetButton" style="display: none;">다시 하기</button>
+    </div>
+    <div id="count">남은 횟수: <span id="remainingAttempts">7</span>/총 7</div>
+    <div id="overtimeDisplay">누적 야근 시간 : 0시간 0분</div>
+    <div id="result"></div>
+    <div id="gameOver"></div>
+
+	<a href="index.html" style="position: absolute; top: 10px; left: 10px; text-decoration: none; color: #fff; background-color: #3c8dbc; padding: 10px 15px; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2);">← 돌아가기</a>
+
+    <script>
+        let remainingAttempts = 7;
+        let totalOvertimeHours = 0; // 총 야근 시간 (시간 단위)
+        let totalOvertimeMinutes = 0; // 총 야근 시간 (분 단위)
+        let attemptCount = 0;
+
+        const checkResultButton = document.getElementById("checkResultButton");
+        const remainingAttemptsDisplay = document.getElementById("remainingAttempts");
+        const resultDisplay = document.getElementById("result");
+        const gameOverDisplay = document.getElementById("gameOver");
+        const resetButton = document.getElementById("resetButton");
+        const overtimeDisplay = document.getElementById("overtimeDisplay");
+
+        checkResultButton.addEventListener("click", function() {
+            if (remainingAttempts > 0) {
+                remainingAttempts--;
+                remainingAttemptsDisplay.innerText = remainingAttempts;
+
+                // 결과 결정
+                let result = Math.random() < 0.01 ? "정시퇴근" : "야근";
+                let overtimeHours = result === "야근" ? Math.floor(Math.random() * (12 * 60) + 1) / 60 : 0; // 1분부터 12시간 사이
+                let overtimeMinutes = Math.round(overtimeHours % 1 * 60); // 소수점 이하를 반올림하여 정수로 표시
+                overtimeHours = Math.floor(overtimeHours);
+
+                attemptCount++;
+                resultDisplay.innerHTML += `${attemptCount}회차 : ${result}(${overtimeHours}시간 ${overtimeMinutes}분)<br />`;
+
+                // 야근 시간 합산
+                totalOvertimeHours += overtimeHours;
+                totalOvertimeMinutes += overtimeMinutes;
+
+                // 60분을 초과하는 경우 시간으로 변환
+                if (totalOvertimeMinutes >= 60) {
+                    totalOvertimeHours += Math.floor(totalOvertimeMinutes / 60);
+                    totalOvertimeMinutes = totalOvertimeMinutes % 60; // 남은 분
+                }
+
+                // 최종 야근 시간 표시
+                overtimeDisplay.innerHTML = `누적 야근 시간 : ${totalOvertimeHours}시간 ${totalOvertimeMinutes}분`;
+
+                // GAME OVER 조건 확인
+                if (totalOvertimeHours > 40) {
+                    gameOverDisplay.innerText = "GAME OVER. 노동법 위반입니다.";
+                    checkResultButton.style.display = "none";
+                    resetButton.style.display = "block";
+                }
+
+                // 버튼 숨기기
+                if (remainingAttempts === 0) {
+                    checkResultButton.style.display = "none";
+                    resetButton.style.display = "block";
+                }
+            }
+        });
+
+        resetButton.addEventListener("click", function() {
+            // 초기화
+            remainingAttempts = 7;
+            totalOvertimeHours = 0;
+            totalOvertimeMinutes = 0;
+            attemptCount = 0;
+            remainingAttemptsDisplay.innerText = remainingAttempts;
+            resultDisplay.innerText = "";
+            gameOverDisplay.innerText = "";
+            overtimeDisplay.innerHTML = "누적 야근 시간 : 0시간 0분"; // 초기 상태로 리셋
+            checkResultButton.style.display = "block";
+            resetButton.style.display = "none";
+        });
+    </script>
+    
+</body>
+</html>
