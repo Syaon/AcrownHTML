@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang='ko'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>댱이님의 키뽑기</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        h1 {
+            color: #3c8dbc;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        #dangyi {
+            display: inline-block;
+            transition: font-size 0.3s ease;
+        }
+        #game-over {
+            color: red;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+        #success {
+            color: green;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+        button {
+            background-color: #3c8dbc;
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2b6ba8;
+        }
+        #restart-button {
+            display: none;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        #increase-info {
+            color: #3c8dbc;
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1><span id="dangyi">댱이</span>님의 키뽑기</h1>
+    <p>현재 키: <span id='current-height'>0</span> cm</p>
+    <p id='increase-info' style='display:none;'></p>
+    <p>강화 단계: <span id='current-level'>0</span></p>
+    <button id='enhance-button'>강화하기</button>
+    <button id='restart-button' onclick='restartGame()'>다시하기</button>
+    <p id='game-over' style='display:none;'>댱이님의 키가 한순간 핑크색으로 빛나더니 곧 2mm 댱이님이 되었습니다.</p>
+    <p id='success' style='display:none;'>축하합니다! 2M 달성!</p>
+
+    <script>
+        let currentHeight = 0;
+        let currentLevel = 0;
+        const enhanceButton = document.getElementById('enhance-button');
+        const currentHeightDisplay = document.getElementById('current-height');
+        const currentLevelDisplay = document.getElementById('current-level');
+        const gameOverDisplay = document.getElementById('game-over');
+        const successDisplay = document.getElementById('success');
+        const restartButton = document.getElementById('restart-button');
+        const dangyi = document.getElementById('dangyi');
+        const increaseInfo = document.getElementById('increase-info');
+
+        const enhanceProbabilities = [
+            1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 0.6667, 0.6667, 0.6667,
+            0.3330, 0.3330, 0.167, 0.167, 0.125, 0.125, 0.10, 0.10, 0.05, 0.05, 0.05, 0.00
+        ];
+
+        enhanceButton.addEventListener('click', enhance);
+
+        function enhance() {
+            if (currentLevel >= enhanceProbabilities.length - 1) return;
+
+            const successChance = enhanceProbabilities[currentLevel];
+            const randomValue = Math.random();
+
+            if (randomValue <= successChance) {
+                const increase = Math.floor(Math.random() * 26) + 5; // 5cm에서 30cm 사이의 증가량
+                currentHeight += increase;
+                currentLevel++;
+                currentHeightDisplay.textContent = currentHeight;
+                currentLevelDisplay.textContent = currentLevel;
+
+                // Update font size of "댱이"
+                const baseSize = 40; // 기본 폰트 크기
+                const scalingFactor = 0.2; // cm당 증가하는 폰트 크기
+                const maxSize = 100; // 최대 폰트 크기
+                const newSize = Math.min(baseSize + currentHeight * scalingFactor, maxSize);
+                dangyi.style.fontSize = newSize + 'px';
+
+                // Display increase information
+                increaseInfo.style.display = 'block';
+                increaseInfo.textContent = `키가 ${increase}cm 자랐습니다!`;
+
+                if (currentHeight >= 200) {
+                    successDisplay.style.display = 'block';
+                    enhanceButton.style.display = 'none';
+                    restartButton.style.display = 'inline';
+                }
+            } else {
+                gameOverDisplay.style.display = 'block';
+                enhanceButton.style.display = 'none';
+                restartButton.style.display = 'inline';
+                shrinkDangyiFont();
+            }
+        }
+
+        function shrinkDangyiFont() {
+            const minSize = 5; // 최소 폰트 크기
+            let currentSize = parseFloat(window.getComputedStyle(dangyi).fontSize);
+            const interval = setInterval(() => {
+                if (currentSize > minSize) {
+                    currentSize *= 0.5; // 기하급수적으로 줄어듦
+                    dangyi.style.fontSize = currentSize + 'px';
+                } else {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+
+        function restartGame() {
+            currentHeight = 0;
+            currentLevel = 0;
+            currentHeightDisplay.textContent = currentHeight;
+            currentLevelDisplay.textContent = currentLevel;
+            dangyi.style.fontSize = '40px'; // 초기 폰트 크기로 리셋
+            gameOverDisplay.style.display = 'none';
+            successDisplay.style.display = 'none';
+            enhanceButton.style.display = 'inline';
+            restartButton.style.display = 'none';
+            increaseInfo.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
