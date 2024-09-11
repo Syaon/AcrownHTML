@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>솔맹 상자 ver.3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #counter {
+            margin-top: 10px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>솔맹 상자 ver.3</h1>
+    <button onclick="getRandomResult()">결과 보기</button>
+    <div id="result"></div>
+    <div id="counter">결과 보기 횟수: 0</div>
+
+	<a href="index.html" style="position: absolute; top: 10px; left: 10px; text-decoration: none; color: #fff; background-color: #3c8dbc; padding: 10px 15px; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2);">← 돌아가기</a>
+
+    <script>
+        let count = 0; // 결과 보기 횟수를 저장할 변수
+
+        function getRandomResult() {
+            // 카운트 증가
+            count++;
+            document.getElementById('counter').innerText = `결과 보기 횟수: ${count}`;
+
+            const outcomes = {
+                '정시퇴근': 40,
+                '무단결근': 3,
+                '오전반차': 2.5,
+                '오후반차': 2.5,
+                '연차': 2.5,
+                '지각': 10,
+                '야근': 32.5,
+                '퇴사': 0.5,
+                '강퇴': 0.5,
+				'재택근무': 1,
+				'회식': 2.5,
+				'조기퇴근': 1,
+				'출장': 1,
+				'이직': 0.49,
+				'이 메세지를 보신 분께서는 0.01%의 확률을 뚫고 당첨되신 분입니다.<br>이 메세지를 보셔서 좋은 건 없지만 로또 당첨될 운을 여기에 사용하심을 축하드립니다. 헿 -GM.-': 0.01,
+            };
+            
+            const totalWeight = Object.values(outcomes).reduce((a, b) => a + b, 0);
+            let random = Math.random() * totalWeight;
+            let result = '';
+
+            for (const [key, value] of Object.entries(outcomes)) {
+                if (random < value) {
+                    result = key;
+                    break;
+                }
+                random -= value;
+            }
+
+            // If the result is '지각' or '야근', generate a random time duration
+            if (result === '지각' || result === '야근') {
+                const durationMinutes = Math.floor(Math.random() * (240 - 1 + 1)) + 1; // 1분 ~ 240분 (4시간)
+                const hours = Math.floor(durationMinutes / 60);
+                const minutes = durationMinutes % 60;
+                result += ` (${hours}시간 ${minutes}분)`;
+            }
+
+            document.getElementById('result').innerText = result;
+        }
+    </script>
+</body>
+</html>
