@@ -31,12 +31,15 @@
             height: auto;
             display: block;
             -webkit-user-drag: none;
-            transition: transform 0.1s ease;
+            transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
             cursor: grab;
+            will-change: transform;
+            transform-origin: center center;
         }
         
         #main-image.grabbing {
             cursor: grabbing;
+            transition: none;
         }
         
         .watermark {
@@ -85,6 +88,11 @@
             align-items: center;
             justify-content: center;
             outline: none;
+            transition: background-color 0.2s ease;
+        }
+        
+        .zoom-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
         }
         
         /* 모바일 디바이스 */
@@ -141,10 +149,19 @@
             var isDragging = false;
             var startX, startY;
             var lastX, lastY;
+            var isAnimating = false;
             
             // 이미지 변환 적용 함수
             function applyTransform() {
-                mainImage.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+                if (!isAnimating) {
+                    isAnimating = true;
+                    mainImage.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+                    
+                    // 애니메이션 완료 후 상태 초기화
+                    setTimeout(function() {
+                        isAnimating = false;
+                    }, 300); // transition 시간과 동일하게 설정
+                }
             }
             
             // 줌 인 버튼 클릭
@@ -213,19 +230,26 @@
                     translateX = lastX + dx;
                     translateY = lastY + dy;
                     
-                    // 변환 적용
-                    applyTransform();
+                    // 변환 적용 (드래그 중에는 애니메이션 없음)
+                    mainImage.style.transition = 'none';
+                    mainImage.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
                 }
             });
             
             document.addEventListener('mouseup', function() {
-                isDragging = false;
-                mainImage.classList.remove('grabbing');
+                if (isDragging) {
+                    isDragging = false;
+                    mainImage.classList.remove('grabbing');
+                    mainImage.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                }
             });
             
             document.addEventListener('mouseleave', function() {
-                isDragging = false;
-                mainImage.classList.remove('grabbing');
+                if (isDragging) {
+                    isDragging = false;
+                    mainImage.classList.remove('grabbing');
+                    mainImage.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                }
             });
             
             // 터치 이벤트 (모바일용)
@@ -242,6 +266,7 @@
                         startY = e.touches[0].clientY;
                         lastTouchX = translateX;
                         lastTouchY = translateY;
+                        mainImage.style.transition = 'none';
                         e.preventDefault();
                     }
                 } else if (e.touches.length === 2) {
@@ -262,7 +287,7 @@
                     translateX = lastTouchX + dx;
                     translateY = lastTouchY + dy;
                     
-                    applyTransform();
+                    mainImage.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
                     e.preventDefault();
                 } else if (e.touches.length === 2) {
                     // 핀치 줌
@@ -279,13 +304,16 @@
                     }
                     
                     scale = newScale;
-                    applyTransform();
+                    mainImage.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
                     e.preventDefault();
                 }
             }, { passive: false });
             
             mainImage.addEventListener('touchend', function() {
-                isDragging = false;
+                if (isDragging) {
+                    isDragging = false;
+                    mainImage.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                }
             });
             
             // 두 터치 포인트 간의 거리 계산
